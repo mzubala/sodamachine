@@ -1,6 +1,8 @@
 package pl.com.bottega.sodamachine;
 
+import io.vavr.control.Try;
+
 interface DrinkRepository {
 
-    Drink getDrink(byte nr);
+    Try<Drink> getDrink(byte nr);
 }
