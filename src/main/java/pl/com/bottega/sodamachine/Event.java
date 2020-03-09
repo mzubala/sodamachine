@@ -18,13 +18,16 @@ abstract class Event {
     @EqualsAndHashCode(callSuper = true)
     static class CoinInserted extends Event {
 
-        CoinInserted(Instant timestamp) {
+        private final Money coin;
+
+        CoinInserted(Instant timestamp, Money coin) {
             super(timestamp);
+            this.coin = coin;
         }
 
         @Override
         void dispatch(MachineController machineController) {
-            machineController.coinInserted();
+            machineController.coinInserted(coin);
         }
     }
 

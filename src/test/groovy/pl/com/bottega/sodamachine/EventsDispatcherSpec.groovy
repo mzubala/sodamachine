@@ -17,13 +17,13 @@ class EventsDispatcherSpec extends Specification {
 
     def "informs controller that a coin has been inserted"() {
         given:
-            nextEventIs(new Event.CoinInserted(now()))
+            nextEventIs(new Event.CoinInserted(now(), new Money(100)))
 
         when:
             eventsDispatcher.dispatch()
 
         then:
-            1 * controller.coinInserted()
+            1 * controller.coinInserted(new Money(100))
             0 * controller._
     }
 
@@ -47,7 +47,7 @@ class EventsDispatcherSpec extends Specification {
 
         where:
             eventSupplier << [
-                { t -> new Event.CoinInserted(t) },
+                { t -> new Event.CoinInserted(t, new Money(100)) },
                 { t -> new Event.DrinkButtonPressed(t, new Drink((byte) 1, "Coca-Cola", new Money(250))) },
                 { t -> new Event.CancelButtonPressed(t) }
             ]
