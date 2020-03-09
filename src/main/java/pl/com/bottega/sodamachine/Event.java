@@ -12,14 +12,13 @@ class Event {
 
     static class CoinInserted extends Event {
 
-        private CoinInserted(Instant timestamp) {
+        CoinInserted(Instant timestamp) {
             super(timestamp);
         }
     }
 
     static class CancelButtonPressed extends Event {
-
-        private CancelButtonPressed(Instant timestamp) {
+        CancelButtonPressed(Instant timestamp) {
             super(timestamp);
         }
     }
@@ -27,7 +26,7 @@ class Event {
     static class DrinkButtonPressed extends Event {
         private final Drink drink;
 
-        private DrinkButtonPressed(Instant timestamp, Drink drink) {
+       DrinkButtonPressed(Instant timestamp, Drink drink) {
             super(timestamp);
             this.drink = drink;
         }

@@ -1,6 +1,6 @@
 package pl.com.bottega.sodamachine;
 
-class EventsDispatcher implements Runnable {
+class EventsDispatcher {
 
     private final DriverFacade driverFacade;
     private final MachineController machineController;
@@ -10,8 +10,7 @@ class EventsDispatcher implements Runnable {
         this.machineController = machineController;
     }
 
-    @Override
-    public void run() {
+    void dispatch() {
 
     }
 }
