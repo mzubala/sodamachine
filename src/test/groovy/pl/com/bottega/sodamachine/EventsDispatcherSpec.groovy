@@ -2,6 +2,8 @@ package pl.com.bottega.sodamachine
 
 import io.vavr.control.Option
 import io.vavr.control.Try
+import java.time.Instant
+import java.util.function.Function
 import java.util.function.Supplier
 import spock.lang.Specification
 
@@ -27,20 +29,27 @@ class EventsDispatcherSpec extends Specification {
 
     def "does not inform controller about same event 2 times"() {
         given:
-            nextEventIs((eventSupplier as Supplier<Event>).get())
+            Instant now = now()
+            nextEventIs((eventSupplier as Function<Instant, Event>).apply(now))
 
         when:
-            eventsDispatcher.dispatch()
             eventsDispatcher.dispatch()
 
         then:
             1 * controller._
 
+        when:
+            nextEventIs((eventSupplier as Function<Instant, Event>).apply(now))
+            eventsDispatcher.dispatch()
+
+        then:
+            0 * controller._
+
         where:
             eventSupplier << [
-                { new Event.CoinInserted(now()) },
-                { new Event.DrinkButtonPressed(now(), new Drink((byte) 1, "Coca-Cola", new Money(250))) },
-                { new Event.CancelButtonPressed(now()) }
+                { t -> new Event.CoinInserted(t) },
+                { t -> new Event.DrinkButtonPressed(t, new Drink((byte) 1, "Coca-Cola", new Money(250))) },
+                { t -> new Event.CancelButtonPressed(t) }
             ]
     }
 

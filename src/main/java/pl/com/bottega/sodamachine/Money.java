@@ -1,5 +1,8 @@
 package pl.com.bottega.sodamachine;
 
+import lombok.EqualsAndHashCode;
+
+@EqualsAndHashCode
 class Money {
 
     private long cents;
