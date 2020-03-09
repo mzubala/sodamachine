@@ -87,8 +87,11 @@ class StandardMachineControllerSpec extends Specification {
     }
 
     def "dispenses the coins back when user presses the cancel button"() {
-        given:
+        when:
             StandardMachineController controller = aController()
+
+        then:
+            1 * display.displayPermanently(WELCOME_TEXT)
 
         when:
             controller.coinInserted(new Money(200))
@@ -97,7 +100,7 @@ class StandardMachineControllerSpec extends Specification {
         then:
             1 * ledger.rejectCoins()
             0 * ledger._
-            2 * display.displayPermanently(WELCOME_TEXT)
+            1 * display.displayPermanently(WELCOME_TEXT)
             0 * dispenser._
     }
 
