@@ -1,16 +1,24 @@
 plugins {
     id 'java'
+    id 'groovy'
 }
 
 group 'pl.com.bottega'
 version '1.0-SNAPSHOT'
 
-sourceCompatibility = 1.8
+sourceCompatibility = 13
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile group: 'io.vavr', name: 'vavr', version: '0.10.2'
+    compile "org.codehaus.groovy:groovy-all:2.5.8"
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '0.9.26'
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+    testCompile platform("org.spockframework:spock-bom:2.0-M1-groovy-2.5")
+    testCompile "org.spockframework:spock-core"
+    testCompile group: 'org.awaitility', name: 'awaitility-groovy', version: '4.0.2'
 }
