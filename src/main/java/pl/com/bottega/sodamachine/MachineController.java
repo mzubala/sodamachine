@@ -1,6 +1,6 @@
 package pl.com.bottega.sodamachine;
 
-import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 interface MachineController {
 
@@ -11,6 +11,7 @@ interface MachineController {
     void drinkButtonPressed(byte nr);
 }
 
+@Slf4j
 class StandardMachineController implements MachineController {
 
     private static final String WELCOME_TEXT = "Good Morning! Always Coca-Cola!";
@@ -35,27 +36,29 @@ class StandardMachineController implements MachineController {
     @Override
     public void coinInserted(Money money) {
         insertedAmount = insertedAmount.add(money);
-        display.displayPermanently(String.format("Amount: %s", insertedAmount));
+        display.displayPermanently(String.format("Amount: %s", insertedAmount))
+            .onFailure(this::logErrorDisplayingMessage);
     }
 
     @Override
     public void cancelButtonPressed() {
-        if(insertedAmount.compareTo(new Money(0)) > 0) {
-            ledger.rejectCoins();
-            display.displayPermanently(WELCOME_TEXT);
-            insertedAmount = new Money(0);
+        if (insertedAmount.compareTo(new Money(0)) > 0) {
+            ledger.rejectCoins().andThen(() -> {
+                display.displayPermanently(WELCOME_TEXT).onFailure(this::logErrorDisplayingMessage);
+                insertedAmount = new Money(0);
+            }).onFailure((e) -> log.error("Failed to reject coins", e));
         }
     }
 
     @Override
     public void drinkButtonPressed(byte nr) {
-        drinkRepository.getDrink(nr).andThen(drink -> {
-            if(enoughCoinsInsertedToBuy(drink)) {
+        drinkRepository.getDrink(nr).onSuccess(drink -> {
+            if (enoughCoinsInsertedToBuy(drink)) {
                 dispenseDrink(drink);
             } else {
                 displayDrinkPrice(drink);
             }
-        });
+        }).onFailure(ex -> log.error("Could not find drink with a given number: " + nr));
     }
 
     private boolean enoughCoinsInsertedToBuy(Drink drink) {
@@ -66,7 +69,7 @@ class StandardMachineController implements MachineController {
         ledger.acceptCoins();
         dispenser.dispense(drink);
         Money change = insertedAmount.subtract(drink.getPrice());
-        if(change.compareTo(new Money(0)) > 0) {
+        if (change.compareTo(new Money(0)) > 0) {
             ledger.dispense(change);
             display.displayBrieflyAndThePermanently(THANK_YOU_TEXT_WITH_CHANGE, WELCOME_TEXT);
         } else {
@@ -76,6 +79,11 @@ class StandardMachineController implements MachineController {
     }
 
     private void displayDrinkPrice(Drink drink) {
-        display.displayBriefly(String.format("%s: %s", drink.getName(), drink.getPrice()));
+        display.displayBriefly(String.format("%s: %s", drink.getName(), drink.getPrice()))
+            .onFailure(this::logErrorDisplayingMessage);
+    }
+
+    private void logErrorDisplayingMessage(Throwable throwable) {
+        log.error("Error displaying message", throwable);
     }
 }
