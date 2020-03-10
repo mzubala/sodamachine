@@ -23,4 +23,12 @@ class Command {
             this.amount = amount;
         }
     }
+
+    static class DisplayCommand extends Command {
+        private final String text;
+
+        public DisplayCommand(String text) {
+            this.text = text;
+        }
+    }
 }
