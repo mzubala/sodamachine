@@ -1,5 +1,7 @@
 package pl.com.bottega.sodamachine;
 
+import lombok.EqualsAndHashCode;
+
 class Command {
 
     private Command() {}
@@ -24,6 +26,7 @@ class Command {
         }
     }
 
+    @EqualsAndHashCode
     static class DisplayCommand extends Command {
         private final String text;
 

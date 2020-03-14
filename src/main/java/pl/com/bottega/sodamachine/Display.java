@@ -1,7 +1,12 @@
 package pl.com.bottega.sodamachine;
 
+import io.vavr.control.Option;
 import io.vavr.control.Try;
-import lombok.extern.slf4j.Slf4j;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
 
 interface Display {
 
@@ -12,27 +17,60 @@ interface Display {
     Try<Void> displayBrieflyAndThePermanently(String briefText, String permanentText);
 }
 
-@Slf4j
-class DriverFacadeDisplay implements Display {
+class StandardDisplay implements Display {
 
     private final DriverFacade driverFacade;
+    private final long briefTime;
 
-    public DriverFacadeDisplay(DriverFacade driverFacade) {
+    private Option<String> permanentTextOption = Option.none();
+
+    private Option<Future> briefDisplayFuture = Option.none();
+
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+    private final Semaphore semaphore = new Semaphore(1);
+
+    StandardDisplay(DriverFacade driverFacade, long briefTime) {
         this.driverFacade = driverFacade;
+        this.briefTime = briefTime;
     }
 
     @Override
     public Try<Void> displayPermanently(String text) {
-        return null;
+        cancelBriefDisplay();
+        return driverFacade.execute(new Command.DisplayCommand(text)).andThen(() -> {
+            this.permanentTextOption = Option.of(text);
+        });
     }
 
     @Override
     public Try<Void> displayBriefly(String text) {
-        return null;
+        if (permanentTextOption.isEmpty()) {
+            return Try.failure(new IllegalStateException("No permanent text displayed"));
+        }
+        return displayBrieflyAndThePermanently(text, permanentTextOption.get());
     }
 
     @Override
     public Try<Void> displayBrieflyAndThePermanently(String briefText, String permanentText) {
-        return null;
+        cancelBriefDisplay();
+        return driverFacade.execute(new Command.DisplayCommand(briefText)).andThen(() -> {
+            briefDisplayFuture = Option.of(executorService.submit(() -> {
+                try {
+                    Thread.sleep(briefTime);
+                } catch (InterruptedException e) {
+                    System.out.println("Interrupted");
+                    return;
+                }
+                displayPermanently(permanentText);
+            }));
+        });
+    }
+
+    private void cancelBriefDisplay() {
+        briefDisplayFuture.peek((future) -> {
+            System.out.println("Canceling future");
+            future.cancel(true);
+        });
     }
 }
