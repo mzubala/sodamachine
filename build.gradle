@@ -1,24 +1,22 @@
 plugins {
-    id 'java'
-    id 'groovy'
+    id "java"
+    id "groovy"
+    id "io.freefair.lombok" version "6.5.1"
 }
 
-group 'pl.com.bottega'
-version '1.0-SNAPSHOT'
+group "pl.com.bottega"
+version "1.0-SNAPSHOT"
 
-sourceCompatibility = 13
+sourceCompatibility = 17
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    compile group: 'io.vavr', name: 'vavr', version: '0.10.2'
-    compile "org.codehaus.groovy:groovy-all:2.5.8"
-    compile group: 'ch.qos.logback', name: 'logback-classic', version: '0.9.26'
-    compileOnly 'org.projectlombok:lombok:1.18.12'
-    annotationProcessor 'org.projectlombok:lombok:1.18.12'
-    testCompile platform("org.spockframework:spock-bom:2.0-M1-groovy-2.5")
-    testCompile "org.spockframework:spock-core"
-    testCompile group: 'org.awaitility', name: 'awaitility-groovy', version: '4.0.2'
+    implementation group: "io.vavr", name: "vavr", version: "0.10.2"
+    implementation group: "ch.qos.logback", name: "logback-classic", version: "0.9.26"
+    testImplementation "org.spockframework:spock-core:2.0-groovy-3.0"
+    testImplementation "org.codehaus.groovy:groovy-all:3.0.8"
+    testImplementation group: "org.awaitility", name: "awaitility-groovy", version: "4.0.2"
 }
