@@ -20,3 +20,7 @@ dependencies {
     testImplementation "org.codehaus.groovy:groovy-all:3.0.8"
     testImplementation group: "org.awaitility", name: "awaitility-groovy", version: "4.0.2"
 }
+
+test {
+    useJUnitPlatform()
+}
